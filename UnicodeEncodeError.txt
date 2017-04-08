@@ -1,0 +1,4 @@
+# 加入以下代码
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
