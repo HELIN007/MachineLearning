@@ -121,4 +121,4 @@ plt.show()
 normMat, ranges, minVal = autoNorm(datingDataMat)
 datingClassTest()
 # 演示整个系统
-classifyPerson()
+# classifyPerson()
