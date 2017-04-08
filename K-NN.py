@@ -1,6 +1,6 @@
 import operator
 import matplotlib.pyplot as plt
-# import he hello
+# import he hello world
 # 从文件中获取特征矩阵和标签列表
 def fileToMatrix(fileName):
     fr = open(fileName)
