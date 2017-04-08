@@ -2,7 +2,7 @@
 from numpy import zeros, tile, array, shape
 import operator
 import matplotlib.pyplot as plt
-# import
+# import re
 
 
 # 从文件中获取特征矩阵和标签列表
