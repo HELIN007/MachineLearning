@@ -1,6 +1,8 @@
+# -*- coding=utf-8 -*-
 import operator
 import matplotlib.pyplot as plt
-# import re
+from numpy import zeros, tile, array, shape
+
 # 从文件中获取特征矩阵和标签列表
 def fileToMatrix(fileName):
     fr = open(fileName)
