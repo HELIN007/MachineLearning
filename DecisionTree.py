@@ -3,6 +3,7 @@
 from math import log
 import operator
 
+
 # 创建简单的数据集
 def creatDataset():
     dataSet = [[1, 1, 0, 'fight'], [1, 0, 1, 'fight'],
@@ -10,6 +11,7 @@ def creatDataset():
                [0, 0, 1, 'run'], [0, 1, 0, 'fight'], [0, 1, 1, 'run']]
     labels = ['weapon', 'bullet', 'blood']
     return dataSet, labels
+
 
 # 计算香农熵
 def Shannon(dataSet):
@@ -30,10 +32,12 @@ def Shannon(dataSet):
         shannon -= prob * log(prob, 2)  # 香农熵公式
     return shannon
 
+
 # 打印出数据集
 def printData(myDat):
     for item in myDat:
         print '%s' % (item)
+
 
 # 按照给定特征划分数据集
 def splitDataset(dataSet, axis, value):
@@ -44,6 +48,7 @@ def splitDataset(dataSet, axis, value):
             reducefeatVec.extend(featVec[axis+1:])
             retDataset.append(reducefeatVec)
     return retDataset
+
 
 # 选择最佳
 def chooseBestFeatureToSplit(dataSet):
@@ -70,6 +75,7 @@ def chooseBestFeatureToSplit(dataSet):
             bestFeature = i
     return bestFeature
 
+
 #选出出现次数最多的分类名称
 def majorityCnt(classList):
     classCount = 0
@@ -79,6 +85,7 @@ def majorityCnt(classList):
         classCount[vote] += 1
     sortedclassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedclassCount[0][0]
+
 
 # 递归创建决策树
 def creatTree(dataSet, labels):
