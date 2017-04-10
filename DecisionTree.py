@@ -30,10 +30,21 @@ def Shannon(dataSet):
         shannon -= prob * log(prob, 2)  # 香农熵公式
     return shannon
 
+# 打印出数据集
 def printData(myDat):
     for item in myDat:
         print '%s' % (item)
-        
+
+# 按照给定特征划分数据集
+def splitDataset(dataSet, axis, value):
+    retDataset = []
+    for featVec in dataSet:
+        if featVec[axis] == value:
+            reducefeatVec = featVec[:axis]
+            reducefeatVec.extend(featVec[axis+1:])
+            retDataset.append(reducefeatVec)
+    return retDataset
 myDat, labels = creatDataset()
 # printData(myDat)
-print Shannon(myDat)
+# print Shannon(myDat)
+print splitDataset(myDat, 1, 1)
