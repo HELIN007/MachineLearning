@@ -26,8 +26,8 @@ def Shannon(dataSet):
     shannon = 0
     for key in labelCounts:
         # key即为run和fight
-        prob = float(labelCounts[key])/numEntries
-        shannon -= prob * log(prob, 2)
+        prob = float(labelCounts[key])/numEntries  # key出现的概率
+        shannon -= prob * log(prob, 2)  # 香农熵公式
     return shannon
 
 def printData(myDat):
