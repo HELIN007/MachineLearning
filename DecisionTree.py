@@ -7,7 +7,7 @@ import operator
 # 创建简单的数据集
 def creatDataset():
     dataSet = [[1, 1, 0, 'fight'], [1, 0, 1, 'fight'],
-               [1, 0, 1,'fight'], [1, 0, 1, 'fight'],
+               [1, 0, 1, 'fight'], [1, 0, 1, 'fight'],
                [0, 0, 1, 'run'], [0, 1, 0, 'fight'], [0, 1, 1, 'run']]
     labels = ['weapon', 'bullet', 'blood']
     return dataSet, labels
@@ -76,7 +76,7 @@ def chooseBestFeatureToSplit(dataSet):
     return bestFeature
 
 
-#选出出现次数最多的分类名称
+# 选出出现次数最多的分类名称
 def majorityCnt(classList):
     classCount = 0
     for vote in classList:
@@ -90,21 +90,23 @@ def majorityCnt(classList):
 # 递归创建决策树
 def creatTree(dataSet, labels):
     classList = [example[-1] for example in dataSet]  # 取出最后一行属性
-    # print classList
+    print classList
     if classList.count(classList[0]) == len(classList):
         return classList[0]
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
     bestFeature = chooseBestFeatureToSplit(dataSet)
     bestFeatureLable = labels[bestFeature]
-    myTree = {bestFeatureLable:{}}
+    myTree = {bestFeatureLable: {}}
     del(labels[bestFeature])
     featValues = [example[bestFeature] for example in dataSet]
     uniqueVals = set(featValues)
     for value in uniqueVals:
         subLables = labels[:]
-        myTree[bestFeatureLable][value] = creatTree(splitDataset(dataSet, bestFeature,value), subLables)
+        myTree[bestFeatureLable][value] = creatTree(splitDataset(dataSet, bestFeature, value), subLables)
     return myTree
+
+
 myDat, labels = creatDataset()
 # print chooseBestFeatureToSplit(myDat)
 print creatTree(myDat, labels)
