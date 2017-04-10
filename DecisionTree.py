@@ -13,15 +13,19 @@ def creatDataset():
 
 # 计算香农熵
 def Shannon(dataSet):
-    numEntries = len(dataSet)
+    numEntries = len(dataSet)  # 数据集的条数
     labelCounts = {}
     for featVec in dataSet:
-        currentLabel = featVec[-1]
+        currentLabel = featVec[-1]  # 现在所处的状态
+        # 累计状态出现的次数
         if currentLabel not in labelCounts.keys():
             labelCounts[currentLabel] = 0
+            # print labelCounts
         labelCounts[currentLabel] += 1
+    # print labelCounts
     shannon = 0
     for key in labelCounts:
+        # key即为run和fight
         prob = float(labelCounts[key])/numEntries
         shannon -= prob * log(prob, 2)
     return shannon
@@ -31,5 +35,5 @@ def printData(myDat):
         print '%s' % (item)
         
 myDat, labels = creatDataset()
-printData(myDat)
+# printData(myDat)
 print Shannon(myDat)
