@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-# Python2
+# Python2.7
 import matplotlib.pyplot as plt
 import numpy as np
 
