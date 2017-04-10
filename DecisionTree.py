@@ -90,23 +90,29 @@ def majorityCnt(classList):
 # 递归创建决策树
 def creatTree(dataSet, labels):
     classList = [example[-1] for example in dataSet]  # 取出最后一行属性
-    print classList
+    # 判断属性是否都是一样的，若是一样则返回该属性
     if classList.count(classList[0]) == len(classList):
         return classList[0]
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
-    bestFeature = chooseBestFeatureToSplit(dataSet)
-    bestFeatureLable = labels[bestFeature]
+    bestFeature = chooseBestFeatureToSplit(dataSet)  # 得出以哪个属性(序号）进行决策
+    print bestFeature
+    bestFeatureLable = labels[bestFeature]  # 得出属性
     myTree = {bestFeatureLable: {}}
+    # print myTree
     del(labels[bestFeature])
-    featValues = [example[bestFeature] for example in dataSet]
+    featValues = [example[bestFeature] for example in dataSet]  # 分别取出第bestFeature列的值，存为列表
+    print featValues
     uniqueVals = set(featValues)
     for value in uniqueVals:
-        subLables = labels[:]
+        subLables = labels[:]  # 复制labels的值，且subLables变化时不影响labels
+        print subLables
         myTree[bestFeatureLable][value] = creatTree(splitDataset(dataSet, bestFeature, value), subLables)
+        # print myTree
     return myTree
 
 
 myDat, labels = creatDataset()
+print labels
 # print chooseBestFeatureToSplit(myDat)
 print creatTree(myDat, labels)
