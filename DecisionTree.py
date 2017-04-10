@@ -48,27 +48,26 @@ def splitDataset(dataSet, axis, value):
 # 选择最佳
 def chooseBestFeatureToSplit(dataSet):
     numFeatures = len(dataSet[0]) - 1
-    bestShannon = Shannon(dataSet)
-    # print bestShannon
+    bestShannon = Shannon(dataSet)  # 先计算整个数据集的香农熵
     bestInfoGain = 0
     bestFeature = -1
-    for i in range(numFeatures):
-        featList = [example[i] for example in dataSet]
-        uniqueVals = set(featList)
+    for i in range(numFeatures):  # 分别遍历所有的属性
+        featList = [example[i] for example in dataSet]  # 分别取出每一列的值，存为列表
+        # print featList
+        uniqueVals = set(featList)  # 去重，保留的该类型属性的数量
+        # print uniqueVals
         newShannon = 0
         for value in uniqueVals:
-            subDataSet = splitDataset(dataSet,i,value)
+            # print value
+            subDataSet = splitDataset(dataSet, i, value)
+            # print subDataSet
             prob = len(subDataSet)/float(len(dataSet))
             newShannon += prob * Shannon(subDataSet)
-        infoGain = bestShannon - newShannon
+        infoGain = bestShannon - newShannon  # 信息熵
         print infoGain
         if (infoGain > bestInfoGain):
             bestInfoGain = infoGain
-            # print bestInfoGain
             bestFeature = i
     return bestFeature
 myDat, labels = creatDataset()
-# printData(myDat)
-# print Shannon(myDat)
-# print splitDataset(myDat, 1, 1)
 print chooseBestFeatureToSplit(myDat)
