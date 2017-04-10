@@ -47,4 +47,4 @@ def splitDataset(dataSet, axis, value):
 myDat, labels = creatDataset()
 # printData(myDat)
 # print Shannon(myDat)
-print splitDataset(myDat, 1, 1)
+# print splitDataset(myDat, 1, 1)
