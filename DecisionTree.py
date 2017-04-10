@@ -46,7 +46,29 @@ def splitDataset(dataSet, axis, value):
     return retDataset
 
 # 选择最佳
+def chooseBestFeatureToSplit(dataSet):
+    numFeatures = len(dataSet[0]) - 1
+    bestShannon = Shannon(dataSet)
+    # print bestShannon
+    bestInfoGain = 0
+    bestFeature = -1
+    for i in range(numFeatures):
+        featList = [example[i] for example in dataSet]
+        uniqueVals = set(featList)
+        newShannon = 0
+        for value in uniqueVals:
+            subDataSet = splitDataset(dataSet,i,value)
+            prob = len(subDataSet)/float(len(dataSet))
+            newShannon += prob * Shannon(subDataSet)
+        infoGain = bestShannon - newShannon
+        print infoGain
+        if (infoGain > bestInfoGain):
+            bestInfoGain = infoGain
+            # print bestInfoGain
+            bestFeature = i
+    return bestFeature
 myDat, labels = creatDataset()
 # printData(myDat)
 # print Shannon(myDat)
 # print splitDataset(myDat, 1, 1)
+print chooseBestFeatureToSplit(myDat)
