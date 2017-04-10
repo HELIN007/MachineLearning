@@ -69,5 +69,34 @@ def chooseBestFeatureToSplit(dataSet):
             bestInfoGain = infoGain
             bestFeature = i
     return bestFeature
+
+#选出出现次数最多的分类名称
+def majorityCnt(classList):
+    classCount = 0
+    for vote in classList:
+        if vote not in classCount.keys():
+            classCount[vote] = 0
+        classCount[vote] += 1
+    sortedclassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
+    return sortedclassCount[0][0]
+
+# 递归创建决策树
+def creatTree(dataSet, labels):
+    classList = [example[-1] for example in dataSet]
+    if classList.count(classList[0]) == len(classList):
+        return classList[0]
+    if len(dataSet[0]) == 1:
+        return majorityCnt(classList)
+    bestFeature = chooseBestFeatureToSplit(dataSet)
+    bestFeatureLable = labels[bestFeature]
+    myTree = {bestFeatureLable:{}}
+    del(labels[bestFeature])
+    featValues = [example[bestFeature] for example in dataSet]
+    uniqueVals = set(featValues)
+    for value in uniqueVals:
+        subLables = labels[:]
+        myTree[bestFeatureLable][value] = creatTree(splitDataset(dataSet, bestFeature,value), subLables)
+    return myTree
 myDat, labels = creatDataset()
-print chooseBestFeatureToSplit(myDat)
+# print chooseBestFeatureToSplit(myDat)
+print creatTree(myDat, labels)
