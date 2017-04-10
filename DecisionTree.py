@@ -44,6 +44,8 @@ def splitDataset(dataSet, axis, value):
             reducefeatVec.extend(featVec[axis+1:])
             retDataset.append(reducefeatVec)
     return retDataset
+
+# 选择最佳
 myDat, labels = creatDataset()
 # printData(myDat)
 # print Shannon(myDat)
