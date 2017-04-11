@@ -1,4 +1,5 @@
 # -*- coding=utf-8 -*-
+# Python2.7
 import operator
 import matplotlib.pyplot as plt
 from numpy import zeros, tile, array, shape
