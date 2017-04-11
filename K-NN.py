@@ -7,7 +7,7 @@ from numpy import zeros, tile, array, shape
 # 从文件中获取特征矩阵和标签列表
 def fileToMatrix(fileName):
     fr = open(fileName)
-    # 读文件内容
+    # 读取文件内容
     allLines = fr.readlines()
     numberOfLines = len(allLines)
     # 构造numberOfLines行3列的0阵，用作之后存储特征矩阵
