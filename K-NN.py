@@ -51,7 +51,7 @@ def autoNorm(dataSet):
     return normDataSet, ranges, minVal
 
 
-# 分类函数，之前有讲解（[传送门](https://zh1995.github.io/2017/03/22/K-%E8%BF%91%E9%82%BB%E7%AE%97%E6%B3%95Demo/) ）
+# 分类函数
 def classify0(intX, dataSet, labels, k):
     dataSetSize = dataSet.shape[0]
     diffMat = tile(intX, (dataSetSize, 1)) - dataSet
@@ -63,8 +63,7 @@ def classify0(intX, dataSet, labels, k):
     for i in range(k):
         voteIlabel = labels[sortedDistIndicies[i]]
         classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
-    sortedClassCount = sorted(
-        classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
+    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
 
