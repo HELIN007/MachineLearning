@@ -96,9 +96,9 @@ def creatTree(dataSet, labels):
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
     bestFeature = chooseBestFeatureToSplit(dataSet)  # 得出以哪个属性(序号）进行决策
-    # print bestFeature
+    print bestFeature
     bestFeatureLable = labels[bestFeature]  # 得出属性
-    # print bestFeatureLable
+    print bestFeatureLable
     myTree = {bestFeatureLable: {}}
     print myTree
     del(labels[bestFeature])  # 删除labels中的该属性避免重复
