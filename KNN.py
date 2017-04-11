@@ -23,8 +23,6 @@ class KNN:
         distance = distance**0.5
         # print distance
         sortdiffidx = distance.argsort()  # 从小到大排列数组，返回序列值
-        # print sortdiffidx
-
         # find the k nearest neighbours
         vote = {}  # create the dictionary
         for i in range(K):
