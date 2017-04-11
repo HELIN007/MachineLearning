@@ -27,7 +27,6 @@ def createKdTree(data):
     if row == 0:
         return
     col = data.shape[1]  # 表示维数
-
     var = 0  # 方差
     split = 0  # 划分的索引
     for i in range(col):
@@ -60,9 +59,9 @@ def distant(s1, s2):
 
 # 树的查询
 def findPoint(root, query):
-    Point = root.point  # Point=(7, 2)
+    Point = root.point  # Point为树的开头
     # print Point
-    minDist = distant(query, Point)  # 点与(7, 2)的距离
+    minDist = distant(query, Point)  # 点与Point的距离
     nodeList = []
     tempRoot = root
     # 确定了query所在的区域
