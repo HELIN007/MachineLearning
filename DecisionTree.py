@@ -1,7 +1,6 @@
 # -*- coding=utf-8 -*-
 # python2.7
 from math import log
-import operator
 
 
 # 创建简单的数据集
@@ -34,20 +33,20 @@ def Shannon(dataSet):
 
 
 # 打印出数据集
-def printData(myDat):
-    for item in myDat:
+def printData(dataSet):
+    for item in dataSet:
         print '%s' % (item)
 
 
-# 按照给定特征划分数据集
+# 按照给定特征划分数据集，axis是某一属性的序列号，value是属性值
 def splitDataset(dataSet, axis, value):
     retDataset = []
     for featVec in dataSet:
         if featVec[axis] == value:
             reducefeatVec = featVec[:axis]
-            reducefeatVec.extend(featVec[axis+1:])
+            reducefeatVec.extend(featVec[axis+1:])  # 这两行为了去除该属性axis列
             retDataset.append(reducefeatVec)
-    return retDataset
+    return retDataset  # 返回原数据集中符合所给定属性值的数据集
 
 
 # 选择最佳
@@ -76,6 +75,7 @@ def chooseBestFeatureToSplit(dataSet):
     return bestFeature
 
 
+'''
 # 选出出现次数最多的分类名称
 def majorityCnt(classList):
     classCount = 0
@@ -85,22 +85,23 @@ def majorityCnt(classList):
         classCount[vote] += 1
     sortedclassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedclassCount[0][0]
+'''
 
 
 # 递归创建决策树
 def creatTree(dataSet, labels):
-    classList = [example[-1] for example in dataSet]  # 取出最后一行属性
+    classList = [example[-1] for example in dataSet]  # 取出最后一列属性
     # 判断属性是否都是一样的，若是一样则返回该属性
     if classList.count(classList[0]) == len(classList):
         return classList[0]
-    if len(dataSet[0]) == 1:
-        return majorityCnt(classList)
+    # if len(dataSet[0]) == 1:
+    #     return majorityCnt(classList)
     bestFeature = chooseBestFeatureToSplit(dataSet)  # 得出以哪个属性(序号）进行决策
-    print bestFeature
+    # print bestFeature
     bestFeatureLable = labels[bestFeature]  # 得出属性
-    print bestFeatureLable
+    # print bestFeatureLable
     myTree = {bestFeatureLable: {}}
-    print myTree
+    # print myTree
     del(labels[bestFeature])  # 删除labels中的该属性避免重复
     featValues = [example[bestFeature] for example in dataSet]  # 分别取出第bestFeature列的值，存为列表
     # print featValues
@@ -109,11 +110,9 @@ def creatTree(dataSet, labels):
         subLables = labels[:]  # 复制labels的值，且subLables变化时不影响labels
         # print subLables
         myTree[bestFeatureLable][value] = creatTree(splitDataset(dataSet, bestFeature, value), subLables)
-        print myTree
+        # print myTree
     return myTree
 
 
 myDat, labels = creatDataset()
-print labels
-# print chooseBestFeatureToSplit(myDat)
 print creatTree(myDat, labels)
