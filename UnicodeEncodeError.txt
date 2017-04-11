@@ -1,3 +1,4 @@
+# 代码中无法识别中文字符
 # 加入以下代码
 import sys
 reload(sys)
