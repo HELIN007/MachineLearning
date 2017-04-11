@@ -86,7 +86,7 @@ def datingClassText():
         print "the classifier came back with: %d, the real answer is %d" % (
             classifierResult, datingLabels[i])
         # 与已知不符错误计数器加1
-        if (classifierResult != datingLabels[i]):
+        if classifierResult != datingLabels[i]:
             errorCount += 1.0
     print "the total error rate is: %f" % (errorCount / float(numTestVecs))
 
