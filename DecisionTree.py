@@ -70,7 +70,7 @@ def chooseBestFeatureToSplit(dataSet):
             newShannon += prob * Shannon(subDataSet)
         infoGain = bestShannon - newShannon  # 信息熵
         # print infoGain
-        if (infoGain > bestInfoGain):
+        if (infoGain > bestInfoGain):  # 选出信息熵最大的属性的序列号
             bestInfoGain = infoGain
             bestFeature = i
     return bestFeature
@@ -96,19 +96,20 @@ def creatTree(dataSet, labels):
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
     bestFeature = chooseBestFeatureToSplit(dataSet)  # 得出以哪个属性(序号）进行决策
-    print bestFeature
+    # print bestFeature
     bestFeatureLable = labels[bestFeature]  # 得出属性
+    # print bestFeatureLable
     myTree = {bestFeatureLable: {}}
-    # print myTree
-    del(labels[bestFeature])
+    print myTree
+    del(labels[bestFeature])  # 删除labels中的该属性避免重复
     featValues = [example[bestFeature] for example in dataSet]  # 分别取出第bestFeature列的值，存为列表
-    print featValues
+    # print featValues
     uniqueVals = set(featValues)
     for value in uniqueVals:
         subLables = labels[:]  # 复制labels的值，且subLables变化时不影响labels
-        print subLables
+        # print subLables
         myTree[bestFeatureLable][value] = creatTree(splitDataset(dataSet, bestFeature, value), subLables)
-        # print myTree
+        print myTree
     return myTree
 
 
