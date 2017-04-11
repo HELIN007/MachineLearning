@@ -69,7 +69,7 @@ def classify0(intX, dataSet, labels, k):
 
 
 # 测试分类器
-def datingClassTest():
+def datingClassText():
     # 选取10%数据用作测试
     ratio = 0.1
     datingDataMat, datingLabels = fileToMatrix('datingTestSet.txt')
@@ -120,6 +120,6 @@ ax.scatter(datingDataMat[:, 1], datingDataMat[:, 2], 15.0*array(datingLabels), 1
 plt.show()
 # 演示测试分类器
 normMat, ranges, minVal = autoNorm(datingDataMat)
-datingClassTest()
+datingClassText()
 # 演示整个系统
 # classifyPerson()
