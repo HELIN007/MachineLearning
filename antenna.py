@@ -34,6 +34,7 @@ b = np.sqrt(Sl[0]**2 + Sl[1]**2 + Sl[2]**2) * np.sqrt(
 c = np.arccos(a/b)
 Pr = [[0.0 for i in range(1000)] for j in range(1000)]
 Pr = np.array(Pr)
+# 判断是否存在于辐射范围内并计算该点功率
 for i, row in enumerate(c):
     for j, col in enumerate(row):
         if 0 <= col <= beta:
