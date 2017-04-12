@@ -35,7 +35,7 @@ def Shannon(dataSet):
 # 打印出数据集
 def printData(dataSet):
     for item in dataSet:
-        print '%s' % (item)
+        print '%s' % item
 
 
 # 按照给定特征划分数据集，axis是某一属性的序列号，value是属性值
@@ -69,7 +69,7 @@ def chooseBestFeatureToSplit(dataSet):
             newShannon += prob * Shannon(subDataSet)
         infoGain = bestShannon - newShannon  # 信息熵
         # print infoGain
-        if (infoGain > bestInfoGain):  # 选出信息熵最大的属性的序列号
+        if infoGain > bestInfoGain:  # 选出信息熵最大的属性的序列号
             bestInfoGain = infoGain
             bestFeature = i
     return bestFeature
