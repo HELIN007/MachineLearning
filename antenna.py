@@ -43,6 +43,6 @@ for i, row in enumerate(c):
 print '所接收到的功率最小值：', np.amin(Pr)
 print '所接收到的功率最大值：', np.amax(Pr)
 # 画图
-image = plt.imshow(Pr, cmap='jet')
+image = plt.imshow(Pr, cmap='hot')  # hot/jet等各种颜色
 plt.colorbar(image)
 plt.show()
