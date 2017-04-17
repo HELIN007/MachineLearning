@@ -16,7 +16,7 @@ def fileToMatrix(fileName):
     labelVector = []
     index = 0
     for line in allLines:
-        # 左右截空
+        # 左右截空，strip移除字符串头尾指定的字符（默认为空格）
         line = line.strip()
         # \t分割
         listFromLine = line.split('\t')
