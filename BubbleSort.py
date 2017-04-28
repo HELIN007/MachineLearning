@@ -1,6 +1,7 @@
 # -*- coding=utf-8 -*-
 # python2.7
 import matplotlib.pyplot as plt
+import images2gif
 
 
 def BubbleSort(alist):
@@ -15,7 +16,9 @@ def BubbleSort(alist):
             if alist[j] > alist[j+1]:
                 alist[j], alist[j + 1] = alist[j + 1], alist[j]
             plt.plot(range(len(alist)), alist)
-            plt.savefig('Picture-%d%d' % (i, j))
+            plt.xlabel(u'x轴')
+            plt.ylabel(u'y轴')
+            # plt.savefig('Picture-%d%d' % (i, j))
             plt.show()
     return alist
 
