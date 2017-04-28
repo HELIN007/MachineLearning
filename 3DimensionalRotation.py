@@ -1,14 +1,15 @@
 # -*- coding=utf-8 -*-
 # python2.7
 import numpy as np
-from numpy import sin, cos, pi, round
+from numpy import sin, cos, pi
+
 
 def Left_Right_Down(Antenna, One, alpha, beta):
     """
     @param Antenna: antenna list 天线的坐标
     @param One: the test antenna 测试点
     @param alpha: horizontal angle 水平方向角
-    @param beta: down tilt angle 下倾角 
+    @param beta: down tilt angle 下倾角
     @return: new location of antenna 新坐标系下的天线位置
     """
     # 旋转矩阵
