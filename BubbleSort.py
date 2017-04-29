@@ -1,9 +1,10 @@
 # -*- coding=utf-8 -*-
 # python2.7
 import matplotlib.pyplot as plt
-from images2gif import writeGif
-import glob
-from PIL import Image
+# from images2gif import writeGif
+# import glob
+# from PIL import Image
+
 
 def BubbleSort(alist):
     """
@@ -24,10 +25,11 @@ def BubbleSort(alist):
     return alist
 
 
-images = [Image.open(image) for image in glob.glob('**.png')]
-GifName = '1.gif'
-writeGif(GifName, images, duration=0.1)
-
+# images = [Image.open(image) for image in glob.glob('/Users/huanghelin/Desktop/MachineLearning/**.png')]
+# print len(images)
+# GifName = '1---1.gif'
+# writeGif(GifName, images, duration=0.1)
 a = [5, 1, 4, 2, 8]
 BubbleSortedList = BubbleSort(a)
 print BubbleSortedList
+
