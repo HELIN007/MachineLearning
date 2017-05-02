@@ -1,9 +1,9 @@
 # -*- coding=utf-8 -*-
 # python2.7
 import matplotlib.pyplot as plt
-from images2gif import writeGif
-import glob
-from PIL import Image
+# from images2gif import writeGif
+# import glob
+# from PIL import Image
 
 
 def BubbleSort(alist):
@@ -34,10 +34,13 @@ def drawFig(alist, x, y, k):
     plt.show()
 
 
+"""
+# 无法存储
 def drawGif():
     images = [Image.open(image) for image in glob.glob('F:\MachineLearning\*.png')]
     GifName = 'BubbleSort.gif'
     writeGif(GifName, images, duration=0.1)
+"""
 
 
 a = [5, 1, 4, 2, 8]
