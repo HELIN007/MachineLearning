@@ -27,7 +27,13 @@ def drawFig(alist, x, y, k):
     """
     :param alist: The given list
     """
-    plt.plot(range(len(alist)), alist)
+    plt.plot(range(len(alist)), alist, 'o-')
+    # 给每个点写注释
+    for i in range(0, len(alist)):
+        # plt.text(i, alist[i], str((i, alist[i])),
+        #          family='serif', style='italic', ha='right', wrap=True)
+        plt.text(i, alist[i], alist[i], fontsize=15)
+        plt.text(2, 6, 'The %d change!' % k)
     plt.xlabel('x AXIS')
     plt.ylabel('y AXIS')
     plt.savefig('No.%d-%d%d.png' % (k, x, y))
