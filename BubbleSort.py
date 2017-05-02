@@ -9,26 +9,37 @@ from PIL import Image
 def BubbleSort(alist):
     """
     :param alist: The given list
-    :return: The sorted list
+    :return: The sorted list and the number of picture
     """
     k = 0
+    time = 1
     for i in range(len(alist)):
         k += 1
         for j in range(len(alist)-k):
             if alist[j] > alist[j+1]:
                 alist[j], alist[j + 1] = alist[j + 1], alist[j]
-            plt.plot(range(len(alist)), alist)
-            plt.xlabel(u'x轴')
-            plt.ylabel(u'y轴')
-            plt.savefig('%d%d.png' % (i, j))
-            plt.show()
-    return alist
+            drawFig(alist, i, j, time)
+            time += 1
+    return alist, time - 1
 
 
-images = [Image.open(image) for image in glob.glob('/Users/huanghelin/Desktop/MachineLearning/*.png')]
-print len(images)
-GifName = '1---1.gif'
-writeGif(GifName, images, duration=0.1)
+def drawFig(alist, x, y, k):
+    """
+    :param alist: The given list
+    """
+    plt.plot(range(len(alist)), alist)
+    plt.xlabel('x AXIS')
+    plt.ylabel('y AXIS')
+    plt.savefig('No.%d-%d%d.png' % (k, x, y))
+    plt.show()
+
+
+def drawGif():
+    images = [Image.open(image) for image in glob.glob('F:\MachineLearning\*.png')]
+    GifName = 'BubbleSort.gif'
+    writeGif(GifName, images, duration=0.1)
+
+
 a = [5, 1, 4, 2, 8]
 BubbleSortedList = BubbleSort(a)
 print BubbleSortedList
