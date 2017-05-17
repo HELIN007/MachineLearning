@@ -1,4 +1,5 @@
 # -*- coding=utf-8 -*-
+from __future__ import division
 import cairo
 import numpy as np
 # import matplotlib.pyplot as plt
@@ -15,13 +16,7 @@ class Antenna:
         self.h_a = h_angle
         self.v_a = v_angle
 
-    def draw(self, cr, Pr):
-        for i in range(len(Pr)):
-            for j in range(len(Pr)):
-                cr.set_source_rgb(0.6, 0.6, Pr[i]/10)
-                cr.rectangle(i*10, j*10, 9, 9)
-                cr.fill()
-                cr.stroke()
+    def draw(self, cr):
         cr.move_to(self.x, self.y)
         cr.arc(self.x, self.y, 20, degree_to_rad(self.h_a - 30), degree_to_rad(self.h_a + 30))
         cr.line_to(self.x, self.y)
@@ -34,12 +29,19 @@ class Region(object):
         self.antennas = antennas
 
     def draw(self, cr, Pr):
-        cr.rectangle(1, 1, W*10-4, H*10-4)
+        # cr.rectangle(1, 1, W*10-4, H*10-4)
+        cr.rectangle(0, 0, W * 10-2, H * 10-2)
         cr.set_line_width(1)
         # cr.fill()
         cr.stroke()
         for a in self.antennas:
-            a.draw(cr, Pr)
+            a.draw(cr)
+        for i in range(len(Pr)):
+            for j in range(len(Pr[0])):
+                cr.set_source_rgba(0.2, 0.3, Pr[i][j]/10-1, 0.5)
+                # cr.set_source_rgba(1, 0, 0, 0.5)
+                cr.rectangle(i*10, j*10, 9.9, 9.9)
+                cr.fill()
 
 
 class relative_position:
@@ -84,7 +86,7 @@ class relative_position:
                           (self.y[i] - self.point[1]) ** 2 +
                           (self.h[i] - self.point[2]) ** 2)
             dis.append(d)
-        dis = np.round(dis, 5)
+        # dis = np.round(dis, 5)
         # print '              The point_after is:', Point_after
         # print '                  The distant is:', dis, 'm'
         return Point_after, dis
@@ -166,28 +168,31 @@ def Gain(n, alpha, beta, h_d_g, v_d_g):
         b = abs(alpha[i])/180.*(h_d_g[179]-v_d_g[179-beta[i]])
         g = h_d_g[alpha[i]] - a - b
         Gain.append(g)
-    # print '            The gain of point is:', np.round(Gain, 5), 'dBm'
+    # print '            The gain of point is:', np.round(Gain, 5), 'dB'
     return Gain
 
 
 
 def cal_P(get_gain, dis):
-    a = 300./f  #波长
-    p = 10**(Pt/10)  #mW
+    a = 300./f  # 波长
+    p = 10**(Pt/10)*1000  # W
+    gain = 10**(np.array(get_gain)/10.)
     PR = []
+    # Pr = []
     for i in range(len(get_gain)):
-        b = p*(a**2)*get_gain[i]
+        b = p*(a**2)*gain[i]
         # b = p*get_gain[i]
-        c = (4*pi*dis[i])**2
-        pr = b/c*1000
+        c = 4*(pi*dis[i])**2
+        pr = b/c  # W
         PR.append(pr)
     s = deepcopy(PR)
-    s1 = np.array(s)
-    s2 = sum(10**(s1/10))
-    Pr = 10*log10(s2)
+    s1 = np.array(s)  # W
+    s2 = sum(s1)
+    Pr = 10*log10(s2)  #dBw
     # print '              The Pr of point is:', np.round(Pr, 5), 'dBm'
-    print 'The Pr of point is:', np.round(Pr, 5), 'dBm'
+    print 'The Pr of point is:', np.round(Pr, 5), 'dBw'
     print '-----'
+    print min(PR), max(PR)
     return Pr
 
 
@@ -207,7 +212,7 @@ def main():
     point_y = range(0, 20, 1)
     Point = new_point(point_x, point_y, h)
     Pr = []
-    for i in range(len(point_x)):
+    for i in range(len(Point)):
         r_p = relative_position(Point[i], Antanna_x, Antanna_y, Antanna_h, h_angle, v_angle, n)
         point_after, dis = r_p.direction_down_angle()
         ra = relative_angle(point_after, n)
@@ -215,6 +220,7 @@ def main():
         get_Gain = Gain(n, alpha, beta, h_d_g, v_d_g)
         pr = cal_P(get_Gain, dis)
         Pr.append(pr)
+    Pr = np.reshape(Pr, (50, 20))
 
 
 
@@ -230,7 +236,7 @@ def main():
         cr.set_source_rgb(0, 0, 0)
         cr.show_text('node%d->%d' % (i+1, i+3))
     r.draw(cr, Pr)
-    surface.write_to_png('1.png')
+    surface.write_to_png(u'信号强度.png')
 
 if __name__ == '__main__':
     main()
