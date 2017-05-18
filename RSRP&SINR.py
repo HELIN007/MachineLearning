@@ -10,6 +10,10 @@ from copy import deepcopy
 
 
 def data():
+    """
+    读取天线以及待测点的数据
+    :return: 基站横纵坐标，水平角下倾角；待测点横纵坐标
+    """
     A_P = xlrd.open_workbook('antenna_point.xlsx')
     A_P_table = A_P.sheets()[0]
     node_x = A_P_table.col_values(0)[:51]
@@ -21,22 +25,35 @@ def data():
     point_y = A_P_table.col_values(6)
     return node_x, node_y, node_h, node_h_angle, node_v_angle, point_x, point_y
 
+def find_gain():
+    """
+    查找相对应角度的增益值
+    :return: 分别对应于水平角和垂直角的增益
+    """
+    Gain = xlrd.open_workbook('angle_gain.xlsx')
+    Gain_table = Gain.sheets()[0]
+    horizontal_data_gain = Gain_table.col_values(1)
+    vertical_data_gain = Gain_table.col_values(2)
+    return horizontal_data_gain, vertical_data_gain
+
 
 class relative_position:
     """
-    求待测点相对于基站的坐标
+    求待测点相对于基站的坐标，以及待测点与基站的距离
     """
     def __init__(self, Point, Antenna, horizontal_angle, vertical_angle, node_num):
         self.point = Point  # 待测点
-        self.antenna = Antenna  # 所符合要求的基站
-        self.alpha = np.array(horizontal_angle)/180.*pi  # 水平角
-        self.beta = np.array(vertical_angle)/180.*pi  # 下倾角
-        self.n = node_num  # 符合要求的基站数
+        self.antenna = Antenna  # 基站
+        self.alpha = np.array(horizontal_angle)/180.*pi  # 水平角，弧度
+        self.beta = np.array(vertical_angle)/180.*pi  # 下倾角，弧度
+        self.n = node_num  # 基站数
 
 
     def direction_down_angle(self):
-        # 矩阵化
-        mPoint = np.matrix(self.point)
+        """
+        :return: 相对于基站的新坐标，以及和基站的距离
+        """
+        mPoint = np.matrix(self.point)  # 矩阵化
         Point_after = []
         dis = []
         # 循环每个基站
@@ -53,9 +70,10 @@ class relative_position:
                  [-self.antenna[0][i], -self.antenna[1][i], -self.antenna[2][i], 1]]
             mR = np.matrix(R)
             mT = np.matrix(T)
-            after = mPoint*mT*mR
+            after = mPoint*mT*mR  # 计算公式
             Point_after.append(after)
         Point_after = np.round(Point_after, 100)
+        # 计算待测点与基站的距离
         for i in range(len(Point_after)):
             d = np.sqrt((self.antenna[0][i] - self.point[0]) ** 2 +
                           (self.antenna[1][i] - self.point[1]) ** 2 +
@@ -73,7 +91,7 @@ class relative_angle:
     """
     def __init__(self, Point_after, node_num):
         self.p_a = Point_after  # 待测点的新坐标
-        self.n = node_num  # 符合要求的基站数
+        self.n = node_num  # 基站数
 
 
     def Angle(self):
@@ -82,15 +100,15 @@ class relative_angle:
         for i in range(self.n):
             m = np.sqrt(self.p_a[i, 0, 0]**2 + self.p_a[i, 0, 1]**2)
             n = np.sqrt(self.p_a[i, 0, 0]**2 + self.p_a[i, 0, 1]**2 + self.p_a[i, 0, 2]**2)
-            if m != 0:
-                if self.p_a[i, 0, 1] < 0:
+            if m != 0:  # 投影到xOy平面上计算与x轴的夹角
+                if self.p_a[i, 0, 1] < 0:  # 因为有方向，所以y>0时为0-180°
                     a = 360 - np.arccos(self.p_a[i, 0, 0]/m) * 180. / pi
                 else:
                     a = np.arccos(self.p_a[i, 0, 0] / m) * 180. / pi
                 alpha.append(int(a))
             else:
                 alpha.append(0)
-            if n != 0:
+            if n != 0:  # 在整个空间里计算与z轴的夹角
                 b =90 - np.arccos(abs(self.p_a[i, 0, 2])/n)*180./pi
                 beta.append(int(b))
             else:
@@ -99,12 +117,6 @@ class relative_angle:
         # print ' The angle with new beta axis is:', beta, 'degree'
         return alpha, beta
 
-def find_gain():
-    Gain = xlrd.open_workbook('angle.xlsx')
-    Gain_table = Gain.sheets()[0]
-    horizontal_data_gain = Gain_table.col_values(1)
-    vertical_data_gain = Gain_table.col_values(2)
-    return horizontal_data_gain, vertical_data_gain
 
 class calculate:
     def __init__(self, point_after, Point, h_d_g, v_d_g,
@@ -119,7 +131,7 @@ class calculate:
         self.dis = np.array(dis)/1000.  # km
         self.Pt = Pt  # 发射功率
         self.f = f  # 发射频率
-        self.n = node_num  # 符合要求的基站数
+        self.n = node_num  # 基站数
 
     def Gain(self):
         """
