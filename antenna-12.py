@@ -3,23 +3,31 @@ from __future__ import division
 import cairo
 import numpy as np
 # import matplotlib.pyplot as plt
-from numpy import pi, cos, sin, log10, sqrt
+from numpy import pi, log10
 import xlrd
 from copy import deepcopy
 
 
 class Antenna:
     def __init__(self, x, y, h, h_angle, v_angle):
-        self.x = x*10
-        self.y = y*10
-        self.h = h
-        self.h_a = h_angle
-        self.v_a = v_angle
+        self.x = x*10  # 天线的横坐标
+        self.y = y*10  # 天线的纵坐标
+        self.h = h  # 天线的高度
+        self.h_a = h_angle  # 水平角
+        self.v_a = v_angle  # 下倾角
 
-    def draw(self, cr):
-        cr.move_to(self.x, self.y)
-        cr.arc(self.x, self.y, 20, degree_to_rad(self.h_a - 30), degree_to_rad(self.h_a + 30))
-        cr.line_to(self.x, self.y)
+    def draw(self, cr, n):
+        """
+        :param cr: 
+        :param n: 画一竖，一竖有n个高度
+        :return: 
+        """
+        cr.move_to(self.x, self.y + 200*n)  # 移到基站坐标处
+        # 画圆arc(起始横坐标，起始纵坐标，起始角度【x轴正方向为起始方向，逆时针为正角度】，终止角度)
+        cr.arc(self.x, self.y + 200*n, 20,
+               degree_to_rad(self.h_a - 30),
+               degree_to_rad(self.h_a + 30))
+        cr.line_to(self.x, self.y + 200*n)  # 开始画
         cr.stroke()
         pass
 
@@ -28,101 +36,33 @@ class Region(object):
     def __init__(self, antennas):
         self.antennas = antennas
 
-    def draw(self, cr, Pr):
-        # cr.rectangle(1, 1, W*10-4, H*10-4)
-        cr.rectangle(0, 0, W * 10-2, H * 10-2)
-        cr.set_line_width(1)
-        # cr.fill()
-        cr.stroke()
-        for a in self.antennas:
-            a.draw(cr)
+    def draw(self, cr, Pr, n):
+        r = 0  # 红色个数
+        y = 0  # 黄色个数
+        g = 0  # 绿色个数
         for i in range(len(Pr)):
             for j in range(len(Pr[0])):
-                cr.set_source_rgba(0.2, 0.3, Pr[i][j]/10-1, 0.5)
-                # cr.set_source_rgba(1, 0, 0, 0.5)
-                cr.rectangle(i*10, j*10, 9.9, 9.9)
+                if Pr[i][j] > 20:
+                    cr.set_source_rgba(1, 0, 0, 0.5)
+                    r += 1
+                elif Pr[i][j] > 17:
+                    cr.set_source_rgba(1, 1, 0, 0.5)
+                    y += 1
+                elif Pr[i][j] > 0:
+                    cr.set_source_rgba(0, 1, 0, 0.5)
+                    g += 1
+                # 给每个点填充颜色
+                cr.rectangle(i * 10, j * 10 + 200 * n, 9.5, 9.5)
                 cr.fill()
+        # 画整个图的框
+        cr.set_source_rgb(0, 0, 0)
+        cr.rectangle(0, 0 + 200 * n, W * 10 - 2, H * 10 + 200 * n)
+        cr.set_line_width(1)
+        cr.stroke()
+        for a in self.antennas:
+            a.draw(cr, n)
+        return r, y, g
 
-
-class relative_position:
-    """
-    求待测点相对于基站的坐标
-    """
-    def __init__(self, Point, Antanna_x, Antanna_y, Antanna_h, horizontal_angle, vertical_angle, n):
-        self.point = Point  # 待测点
-        self.x = Antanna_x
-        self.y = Antanna_y
-        self.h = Antanna_h  # 所符合要求的基站
-        self.alpha = -np.array(horizontal_angle)/180.*pi  # 水平角
-        self.beta = np.array(vertical_angle)/180.*pi  # 下倾角
-        self.n = n  # 基站数
-
-
-    def direction_down_angle(self):
-        # 矩阵化
-        mPoint = np.matrix(self.point)
-        # n = len(self.antenna)
-        Point_after = []
-        dis = []
-        # 循环每个基站
-        for i in range(self.n):
-            # 旋转矩阵
-            R = [[cos(self.alpha[i])*cos(self.beta[i]), -sin(self.alpha[i]), cos(self.alpha[i])*sin(self.beta[i]), 0],
-                 [sin(self.alpha[i])*cos(self.beta[i]), cos(self.alpha[i]), sin(self.alpha[i])*sin(self.beta[i]), 0],
-                 [-sin(self.beta[i]), 0, cos(self.beta[i]), 0],
-                 [0, 0, 0, 1]]
-            # 平移矩阵
-            T = [[1, 0, 0, 0],
-                 [0, 1, 0, 0],
-                 [0, 0, 1, 0],
-                 [-self.x[i], -self.y[i], -self.h[i], 1]]
-            mR = np.matrix(R)
-            mT = np.matrix(T)
-            after = mPoint*mT*mR
-            Point_after.append(after)
-        Point_after = np.round(Point_after, 5)
-        for i in range(len(Point_after)):
-            d = np.sqrt((self.x[i] - self.point[0]) ** 2 +
-                          (self.y[i] - self.point[1]) ** 2 +
-                          (self.h[i] - self.point[2]) ** 2)
-            dis.append(d)
-        # dis = np.round(dis, 5)
-        # print '              The point_after is:', Point_after
-        # print '                  The distant is:', dis, 'm'
-        return Point_after, dis
-
-
-class relative_angle:
-    """
-    求待测点相对于基站的水平角和下倾角
-    """
-    def __init__(self, point_after, n):
-        self.p_a = point_after  # 待测点的新坐标
-        self.n = n  # 符合要求的基站数
-
-
-    def Angle(self):
-        alpha = []
-        beta = []
-        for i in range(self.n):
-            m = np.sqrt(self.p_a[i, 0, 0]**2 + self.p_a[i, 0, 1]**2)
-            n = np.sqrt(self.p_a[i, 0, 0]**2 + self.p_a[i, 0, 1]**2 + self.p_a[i, 0, 2]**2)
-            if m != 0:
-                if self.p_a[i, 0, 1] < 0:
-                    a = 360 - np.arccos(self.p_a[i, 0, 0]/m)*180./pi
-                else:
-                    a = np.arccos(self.p_a[i, 0, 0] / m) * 180. / pi
-                alpha.append(int(a))
-            else:
-                alpha.append(0)
-            if n != 0:
-                b =90 - np.arccos(abs(self.p_a[i, 0, 2])/n)*180./pi
-                beta.append(int(b))
-            else:
-                beta.append(90)
-        # print 'The angle with new alpha axis is:', alpha, 'degree'
-        # print ' The angle with new beta axis is:', beta, 'degree'
-        return alpha, beta
 
 
 def degree_to_rad(d):
@@ -151,92 +91,95 @@ def data():
     return antennas, Antanna_x, Antanna_y, Antanna_h, Antanna_hangle, Antanna_vangle
 
 
-def gain():
-    Gain = xlrd.open_workbook('angle.xlsx')
-    Gain_table = Gain.sheets()[0]
-    horizontal_data_angle = Gain_table.col_values(1)
-    vertical_data_angle = Gain_table.col_values(2)
-    return horizontal_data_angle, vertical_data_angle
-
-def Gain(n, alpha, beta, h_d_g, v_d_g):
-    """
-    :return: 待测点相对于每个基站的增益
-    """
-    Gain = []
-    for i in range(n):
-        a = (pi - abs(alpha[i])/180.*pi)/pi*(h_d_g[0]-v_d_g[beta[i]])
-        b = abs(alpha[i])/180.*(h_d_g[179]-v_d_g[179-beta[i]])
-        g = h_d_g[alpha[i]] - a - b
-        Gain.append(g)
-    # print '            The gain of point is:', np.round(Gain, 5), 'dB'
-    return Gain
-
-
-
 def cal_P(get_gain, dis):
     a = 300./f  # 波长
-    p = 10**(Pt/10)*1000  # W
-    gain = 10**(np.array(get_gain)/10.)
+    p = Pt  # W
+    # gain = 10**(np.array(get_gain)/10.)
+    gain = get_gain
     PR = []
-    # Pr = []
+    # # Pr = []
     for i in range(len(get_gain)):
-        b = p*(a**2)*gain[i]
-        # b = p*get_gain[i]
+        b = p*gain[i]*a**2
         c = 4*(pi*dis[i])**2
-        pr = b/c  # W
-        PR.append(pr)
+        d = b/c
+        PR.append(d)
     s = deepcopy(PR)
     s1 = np.array(s)  # W
     s2 = sum(s1)
-    Pr = 10*log10(s2)  #dBw
-    # print '              The Pr of point is:', np.round(Pr, 5), 'dBm'
-    print 'The Pr of point is:', np.round(Pr, 5), 'dBw'
+    Pr = 10*log10(s2*1000)  #dBm
+
+    # print s2
+    print 'The Pr of point is:', np.round(Pr, 5), 'dBm'
     print '-----'
-    print min(PR), max(PR)
+    # print min(PR), max(PR), len(PR)
     return Pr
 
-
+def cal_dis(Antanna_x, Antanna_y, Antanna_h, Point, n):
+    dis = []
+    for i in range(n):
+        d = np.sqrt((Antanna_x[i] - Point[0]) ** 2 +
+                    (Antanna_y[i] - Point[1]) ** 2 +
+                    (Antanna_h[i] - Point[2]) ** 2)
+        dis.append(d)
+    return  dis
 
 
 W = 50  # m
 H = 20  # m
-Pt = 18.2  #dBm
-f = 900  #MHz
+Pt = 20  # W
+f = 900  # MHz
 
 def main():
     n = 12
-    h = 1.7
+    h = [1.7, 2.0, 2.4, 3.0]  # 待测点的高度
     antennas, Antanna_x, Antanna_y, Antanna_h, h_angle, v_angle = data()
-    h_d_g, v_d_g = gain()
+    # h_d_g, v_d_g = gain()
     point_x = range(0, 50, 1)
     point_y = range(0, 20, 1)
-    Point = new_point(point_x, point_y, h)
+    Pr1 = []
     Pr = []
-    for i in range(len(Point)):
-        r_p = relative_position(Point[i], Antanna_x, Antanna_y, Antanna_h, h_angle, v_angle, n)
-        point_after, dis = r_p.direction_down_angle()
-        ra = relative_angle(point_after, n)
-        alpha, beta = ra.Angle()
-        get_Gain = Gain(n, alpha, beta, h_d_g, v_d_g)
-        pr = cal_P(get_Gain, dis)
-        Pr.append(pr)
-    Pr = np.reshape(Pr, (50, 20))
-
-
+    get_Gain = [10] * 12
+    for i in range(len(h)):
+        Point = new_point(point_x, point_y, h[i])
+        for j in range(len(Point)):
+            dis = cal_dis(Antanna_x, Antanna_y, Antanna_h, Point[j], n)
+            pr = cal_P(get_Gain, dis)
+            Pr1.append(pr)
+        Pr.append(Pr1)
+        Pr1 = []
+    # print min(Pr), max(Pr)
 
     pixel_per_m = 2
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(W*10*pixel_per_m), int(H*10*pixel_per_m))
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(W*10*pixel_per_m), int(len(h)*H*10*pixel_per_m))
     cr = cairo.Context(surface)
     cr.scale(pixel_per_m, pixel_per_m)
     cr.translate(1, 1)
-    r = Region(antennas)
-    for i in range(0, len(Antanna_x), 3):
-        cr.move_to(Antanna_x[i]*10, Antanna_y[i]*10)
-        cr.set_font_size(5)
-        cr.set_source_rgb(0, 0, 0)
-        cr.show_text('node%d->%d' % (i+1, i+3))
-    r.draw(cr, Pr)
+    text = ['China Mobile', 'China Mobile', 'China Mobile',
+            'China Unicom', 'China Unicom', 'China Unicom',
+            'China Telecom', 'China Telecom', 'China Telecom',
+            'China Mi', 'China Mi', 'China Mi']
+    # text = ['China Mobile', 'China Unicom', 'China Telecom', 'China Mi']
+    for i in range(len(h)):
+        PR = np.reshape(Pr[i], (50, 20))
+        r = Region(antennas)
+        red, yellow, green = r.draw(cr, PR, i)
+        colors = 'Red: %d, Yellow: %d, Green: %d' % (red, yellow, green)
+        total = '   All: %d' % 1000
+        cr.move_to(10, 10 + 200 * i)
+        cr.set_font_size(10)
+        # cr.set_source_rgb(0, 0, 0)
+        cr.show_text(str(h[i]))
+        cr.move_to(10, 20 + 200 * i)
+        cr.show_text(total)
+        cr.move_to(10, 30 + 200 * i)
+        cr.show_text(str(colors))
+        for j in range(0, len(Antanna_x), 3):
+            cr.move_to(Antanna_x[j] * 10, Antanna_y[j] * 10 + 200 * i)
+            cr.set_font_size(7)
+            # cr.set_source_rgb(0, 0, 0)
+            cr.show_text(text[j])
     surface.write_to_png(u'信号强度.png')
+
 
 if __name__ == '__main__':
     main()
