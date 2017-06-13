@@ -225,7 +225,7 @@ def All():
     SINR = []
     unused_point = []
     L = len(point_x)
-    for i in range(2):
+    for i in range(L):
         print i + 1
         a_p = kDTree(Antenna, Point[i], node_num)
         needed_antenna, index = a_p.needed_antenna(d=1000)
