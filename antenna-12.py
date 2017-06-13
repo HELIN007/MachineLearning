@@ -131,7 +131,7 @@ f = 900  # MHz
 
 def main():
     n = 12
-    h = [1.7, 2.0, 2.4, 3.0]  # 待测点的高度
+    h = [1.7, 2.0, 3.0]  # 待测点的高度
     antennas, Antanna_x, Antanna_y, Antanna_h, h_angle, v_angle = data()
     # h_d_g, v_d_g = gain()
     point_x = range(0, 50, 1)
