@@ -16,13 +16,13 @@ def data():
     """
     A_P = xlrd.open_workbook('antenna_point.xlsx')
     A_P_table = A_P.sheets()[0]
-    node_x = A_P_table.col_values(0)[:51]
-    node_y = A_P_table.col_values(1)[:51]
-    node_h = A_P_table.col_values(2)[:51]
-    node_h_angle = A_P_table.col_values(3)[:51]
-    node_v_angle = A_P_table.col_values(4)[:51]
-    point_x = A_P_table.col_values(5)
-    point_y = A_P_table.col_values(6)
+    node_x = A_P_table.col_values(0)[:51]  # 天线横坐标
+    node_y = A_P_table.col_values(1)[:51]  # 天线纵坐标
+    node_h = A_P_table.col_values(2)[:51]  # 天线高度
+    node_h_angle = A_P_table.col_values(3)[:51]  # 天线方向角
+    node_v_angle = A_P_table.col_values(4)[:51]  # 天线下倾角
+    point_x = A_P_table.col_values(5)  # 待测点横坐标
+    point_y = A_P_table.col_values(6)  # 待测点纵坐标
     return node_x, node_y, node_h, node_h_angle, node_v_angle, point_x, point_y
 
 def find_gain():
@@ -30,7 +30,7 @@ def find_gain():
     查找相对应角度的增益值
     :return: 分别对应于水平角和垂直角的增益
     """
-    Gain = xlrd.open_workbook('angle_gain.xlsx')
+    Gain = xlrd.open_workbook('find_gain.xlsx')
     Gain_table = Gain.sheets()[0]
     horizontal_data_gain = Gain_table.col_values(1)
     vertical_data_gain = Gain_table.col_values(2)
@@ -39,19 +39,20 @@ def find_gain():
 
 class relative_position:
     """
-    求待测点相对于基站的坐标，以及待测点与基站的距离
+    求待测点相对于基站的坐标，以及待测点与天线的距离
     """
-    def __init__(self, Point, needed_antenna, horizontal_angle, vertical_angle, needed_node_num):
+    def __init__(self, Point, needed_antenna, horizontal_angle,
+                 vertical_angle, needed_node_num):
         self.point = Point  # 待测点
         self.antenna = needed_antenna  # 基站
         self.alpha = np.array(horizontal_angle)/180.*pi  # 水平角，弧度
         self.beta = np.array(vertical_angle)/180.*pi  # 下倾角，弧度
-        self.n = needed_node_num  # 基站数
+        self.n = needed_node_num  # 天线数量
 
 
     def direction_down_angle(self):
         """
-        :return: 相对于基站的新坐标，以及和基站的距离
+        :return: 相对于天线的新坐标，以及和天线的距离
         """
         mPoint = np.matrix(self.point)  # 矩阵化
         Point_after = []
@@ -87,11 +88,11 @@ class relative_position:
 
 class relative_angle:
     """
-    求待测点相对于基站的水平角和下倾角
+    求待测点相对于天线的水平角和下倾角
     """
     def __init__(self, Point_after, needed_node_num):
         self.p_a = Point_after  # 待测点的新坐标
-        self.n = needed_node_num  # 基站数
+        self.n = needed_node_num  # 天线数量
 
 
     def Angle(self):
@@ -127,16 +128,16 @@ class calculate:
         self.v_d_g = v_d_g  # 垂直增益，供查询
         self.n_h = node_h  # 挂高
         self.index = index
-        self.alpha = alpha  # 相对于基站的新水平角
-        self.beta = beta  # 相对于基站的新下倾角
+        self.alpha = alpha  # 相对于天线的新水平角
+        self.beta = beta  # 相对于天线的新下倾角
         self.dis = np.array(dis)/1000.  # km
         self.Pt = Pt  # 发射功率
         self.f = f  # 发射频率
-        self.n = needed_node_num  # 基站数
+        self.n = needed_node_num  # 天线数量
 
     def Gain(self):
         """
-        :return: 待测点相对于每个基站的增益
+        :return: 待测点相对于每个天线的增益
         """
         Gain = []
         for i in range(self.n):
@@ -150,7 +151,7 @@ class calculate:
     def Loss(self, C=3):
         """
         :param C: C=3 for metropolitan areas
-        :return: 待测点相对于每个基站的损耗
+        :return: 待测点相对于每个天线的损耗
         """
         Loss = []
         hR = self.point[2]  # m
@@ -163,9 +164,9 @@ class calculate:
         return Loss
 
 
-    def Rsrp(self):
+    def RSRP_SINR(self):
         """
-        :return: 待测点相对于每个基站的信号强度RSRP
+        :return: 待测点相对于每个天线的信号强度RSRP和SINR
         """
         RSRP = []
         Gain = self.Gain()
@@ -189,21 +190,21 @@ class calculate:
 
 class kDTree:
     """
-    找出符合距离要求的所有基站
+    找出符合距离要求的所有天线
     """
     def __init__(self, Antenna, Point, node_num):
-        self.antenna = Antenna  # 基站坐标，km
+        self.antenna = Antenna  # 天线坐标，km
         self.point = Point  # 待测点坐标，km
-        self.n = node_num  # 符合要求的基站数
+        self.n = node_num  # 天线数量
 
 
-    def needed_antenna(self, d):
+    def antenna_needed(self, d):
         """
         :param d: 定义的距离范围
-        :return: 符合要求的基站坐标antenna以及在list中的索引，方便之后找挂高
+        :return: 符合要求的天线坐标antenna以及在list中的索引，方便之后找挂高
         """
         point = [[self.point[0], self.point[1], self.point[2]]]
-        antenna = []
+        needed_antenna = []
         index = []
         a = []
         # b = []
@@ -214,10 +215,10 @@ class kDTree:
         x = b.query_ball_point(point[0], d)
         index.append(x)
         for i in range(len(index[0])):
-            antenna.append(a[index[0][i]])
+            needed_antenna.append(a[index[0][i]])
         # print index
         # print antenna
-        return antenna, index
+        return needed_antenna, index
 
 
 def All():
@@ -226,9 +227,9 @@ def All():
     unused_point = []
     L = len(point_x)
     for i in range(L):
-        print i + 1
+        print i + 1, Point[i]
         a_p = kDTree(Antenna, Point[i], node_num)
-        needed_antenna, index = a_p.needed_antenna(d=1000)
+        needed_antenna, index = a_p.antenna_needed(d=1000)
         needed_node_num = len(needed_antenna)
         if needed_antenna is not []:
             r_p = relative_position(Point[i], needed_antenna, node_h_angle, node_v_angle, needed_node_num)
@@ -240,7 +241,7 @@ def All():
                             vertical_data_gain, node_h, index, alpha, beta, dis, Pt, f, needed_node_num)
             # gain = cal.Gain()
             # loss = cal.Loss()
-            rsrp, sinr = cal.Rsrp()
+            rsrp, sinr = cal.RSRP_SINR()
             RSRP.append(rsrp)
             SINR.append(sinr)
         else:
@@ -274,6 +275,12 @@ def All():
     return RSRP, SINR, new_yes_x, new_yes_y, new_no_x, new_no_y, m, unused_point
 
 def new_point(p, q, h):
+    """
+    :param p: 待测点横坐标
+    :param q: 待测点纵坐标
+    :param h: 待测点高度
+    :return: 新格式的待测点数据
+    """
     Point = []
     for i in range(len(p)):
         m = [p[i], q[i], h, 1]
@@ -291,8 +298,8 @@ Antenna = [node_x, node_y, node_h, 1]
 
 def main():
     RSRP, SINR, new_yes_x, new_yes_y, new_no_x, new_no_y, m, unused_point = All()
-    plt.scatter(new_yes_x, new_yes_y, c='g', alpha=0.2, lw=1, marker=".")
-    plt.scatter(new_no_x, new_no_y, c='r', alpha=0.2, lw=1, marker=".")
+    plt.scatter(new_yes_x, new_yes_y, c='g', alpha=0.6, lw=1, marker=".")
+    plt.scatter(new_no_x, new_no_y, c='r', alpha=0.6, lw=1, marker=".")
     x = [0] * len(unused_point)
     y = [0] * len(unused_point)
     for i in range(len(unused_point)):
@@ -308,7 +315,6 @@ def main():
     # plt.text(5000, 2600, 'RSRP')
     # plt.savefig('RSRP.png')
     plt.show()
-
 
 
 if __name__ == '__main__':
